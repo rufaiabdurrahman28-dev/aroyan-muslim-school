@@ -351,24 +351,13 @@ export default function ApplyPage() {
                   </div>
                 )}
 
-                {/* Apply button with animated hand */}
+                {/* Apply button with animated pointing hand */}
                 <div className="banner-apply-wrapper">
                   <button
                     className="banner-apply-btn"
                     onClick={() => setShowApplyModal(banner.id)}
                   >
-                    Apply
-                    <span className="apply-hand">
-                      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 20c0 0 2-2 6-2s6 2 6 2" stroke="#C9A961" strokeWidth="2" strokeLinecap="round"/>
-                        <path d="M12 10c0-1.1.9-2 2-2s2 .9 2 2v8c0 1.1-.9 2-2 2s-2-.9-2-2v-8z" fill="#C9A961"/>
-                        <path d="M16 10c0-1.1.9-2 2-2s2 .9 2 2v8c0 1.1-.9 2-2 2s-2-.9-2-2v-8z" fill="#C9A961"/>
-                        <path d="M20 11c0-1.1.9-2 2-2s2 .9 2 2v7c0 1.1-.9 2-2 2s-2-.9-2-2v-7z" fill="#C9A961"/>
-                        <path d="M8 15c0-1.1.9-2 2-2s2 .9 2 2v5c0 1.1-.9 2-2 2s-2-.9-2-2v-5z" fill="#C9A961"/>
-                        <path d="M6 18c0-3 2-6 6-6" stroke="#C9A961" strokeWidth="1.5" strokeLinecap="round"/>
-                        <ellipse cx="14" cy="24" rx="6" ry="4" fill="#C9A961" opacity="0.3"/>
-                      </svg>
-                    </span>
+                    <span className="apply-hand">👉</span> Apply
                   </button>
                 </div>
               </div>
