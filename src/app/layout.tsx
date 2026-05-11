@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
   title: "Aroyan Muslim School - Quranic Memorization & Western Education",
@@ -27,7 +28,9 @@ export default function RootLayout({
         <link rel="preconnect" href="/InShot_20260507_212731657.jpg" />
       </head>
       <body className="antialiased">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
