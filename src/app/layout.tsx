@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   keywords: ["Aroyan", "Muslim School", "Quranic Memorization", "Islamic Education", "Madrasah", "Hifz", "Western Education"],
   authors: [{ name: "Aroyan Muslim School" }],
   icons: {
-    icon: "/mosque-logo.jpg",
+    icon: "/school-logo.png",
   },
   openGraph: {
     title: "Aroyan Muslim School",
@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="/mosque-logo.jpg" />
+        <link rel="preconnect" href="/school-logo.png" />
       </head>
       <body className="antialiased">
         <AuthProvider>

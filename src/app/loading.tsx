@@ -15,7 +15,7 @@ export default function Loading() {
       fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
     }}>
       <img
-        src="/mosque-logo.jpg"
+        src="/school-logo.png"
         alt="Aroyan Logo"
         style={{
           width: 80,

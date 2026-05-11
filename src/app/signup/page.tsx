@@ -140,7 +140,7 @@ export default function SignupPage() {
           <div className="auth-card auth-card-wide">
             <div className="auth-card-header">
               <img
-                src="/mosque-logo.jpg"
+                src="/school-logo.png"
                 alt="Aroyan Logo"
                 className="auth-logo"
               />

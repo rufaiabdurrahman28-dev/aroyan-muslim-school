@@ -1289,7 +1289,7 @@ export default function TeacherPortalPage() {
           <div className="tp-modal" onClick={e => e.stopPropagation()}>
             <div className="tp-report-preview-header">
               <img
-                src="/mosque-logo.jpg"
+                src="/school-logo.png"
                 alt="School Logo"
                 className="tp-report-preview-logo"
               />

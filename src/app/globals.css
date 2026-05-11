@@ -172,6 +172,74 @@ html, body {
 }
 
 /* === NAVIGATION BAR === */
+/* ==================== Welcome Greeting Banner ==================== */
+.welcome-greeting-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1F3D2A 0%, #2D5F3F 50%, #1F3D2A 100%);
+  color: #FFFFFF;
+  padding: 10px 32px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 2px solid #C9A961;
+}
+
+.welcome-greeting-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A961' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+
+.greeting-text {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.greeting-salam {
+  color: #C9A961;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.greeting-time {
+  font-weight: 600;
+  color: #E8D9A0;
+}
+
+.greeting-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+}
+
+.greeting-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 0;
+  filter: brightness(1.05);
+}
+
+.greeting-school-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #C9A961;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
 .navbar {
   display: flex;
   align-items: center;
@@ -1675,6 +1743,36 @@ html, body {
     height: 100vh;
     min-height: 600px;
     background-attachment: scroll;
+  }
+
+  /* Greeting banner mobile */
+  .welcome-greeting-banner {
+    flex-direction: column;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+
+  .greeting-text {
+    font-size: 13px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .greeting-salam {
+    font-size: 14px;
+  }
+
+  .greeting-brand {
+    gap: 8px;
+  }
+
+  .greeting-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .greeting-school-name {
+    font-size: 13px;
   }
 
   /* Navbar mobile */

@@ -41,18 +41,19 @@ export default function Home() {
   return (
     <>
       {/* ==================== Welcome Greeting Banner ==================== */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1F3D2A 0%, #2D5F3F 60%, #1F3D2A 100%)',
-        color: '#FFFFFF',
-        textAlign: 'center',
-        padding: '10px 20px',
-        fontSize: '14px',
-        fontWeight: 500,
-        letterSpacing: '0.3px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <span style={{ color: '#C9A961', fontWeight: 600 }}>As-salamu Alaykum!</span> {getGreeting()} — Welcome to Aroyan Muslim School ☪
+      <div className="welcome-greeting-banner">
+        <div className="greeting-text">
+          <span className="greeting-salam">As-salamu Alaykum!</span>{' '}
+          <span className="greeting-time">{getGreeting()}</span> — Welcome to Aroyan Muslim School ☪
+        </div>
+        <div className="greeting-brand">
+          <img
+            src="/school-logo.png"
+            alt="Aroyan Muslim School Logo"
+            className="greeting-logo"
+          />
+          <span className="greeting-school-name">Aroyan Muslim School</span>
+        </div>
       </div>
 
       {/* ==================== D1 - Header + Hero ==================== */}
@@ -62,7 +63,7 @@ export default function Home() {
         {/* Hero Section */}
         <section className="hero">
           <img
-            src="/mosque-logo.jpg"
+            src="/school-logo.png"
             alt="Aroyan Muslim School"
             className="aroyan-logo"
           />
