@@ -1,0 +1,7 @@
+[project]
+id = "mfqxuddjomrobrcyczpf"
+name = "aroyan-school"
+
+[api]
+port = 54321
+schemas = ["public"]
