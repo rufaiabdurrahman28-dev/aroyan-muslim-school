@@ -19,6 +19,9 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+// Store signup metadata temporarily so we can create profile after email confirmation
+let pendingSignupMeta: { fullName: string; role: Role } | null = null
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -31,16 +34,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        fetchProfile(session.user.id, session.user)
+        ensureProfile(session.user)
       } else {
         setState({ user: null, profile: null, loading: false, portalAccess: null })
       }
     })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        fetchProfile(session.user.id, session.user)
+    // Listen for auth changes (this fires after email confirmation too!)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event)
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        await ensureProfile(session.user)
+      } else if (event === 'SIGNED_OUT') {
+        pendingSignupMeta = null
+        setState({ user: null, profile: null, loading: false, portalAccess: null })
+      } else if (session?.user) {
+        await ensureProfile(session.user)
       } else {
         setState({ user: null, profile: null, loading: false, portalAccess: null })
       }
@@ -49,23 +59,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  async function fetchProfile(userId: string, user: any) {
-    const { data } = await supabase
+  async function ensureProfile(user: any) {
+    // Check if profile exists
+    const { data: existingProfile } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', userId)
+      .eq('id', user.id)
       .single()
 
-    // Dynamic import to avoid circular dependency
+    if (existingProfile) {
+      // Profile exists, just load it
+      const { ROLE_ACCESS } = await import('./types')
+      const role: Role = existingProfile.role || 'student'
+      setState({
+        user,
+        profile: existingProfile,
+        loading: false,
+        portalAccess: ROLE_ACCESS[role],
+      })
+      return
+    }
+
+    // Profile doesn't exist — create it
+    // Use pending signup metadata if available, otherwise use user metadata from Supabase Auth
+    const userMeta = user.user_metadata || {}
+    const fullName = pendingSignupMeta?.fullName || userMeta.full_name || userMeta.name || user.email?.split('@')[0] || 'User'
+    const role: Role = pendingSignupMeta?.role || userMeta.role || 'student'
+
+    const { data: newProfile } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        email: user.email,
+        full_name: fullName,
+        role,
+        section: role === 'student' ? 'primary' : null,
+      })
+      .select()
+      .single()
+
     const { ROLE_ACCESS } = await import('./types')
-    const role: Role = data?.role || 'student'
+    const finalRole: Role = newProfile?.role || role
 
     setState({
       user,
-      profile: data,
+      profile: newProfile || { id: user.id, email: user.email, full_name: fullName, role, section: null },
       loading: false,
-      portalAccess: ROLE_ACCESS[role],
+      portalAccess: ROLE_ACCESS[finalRole],
     })
+
+    // Clear pending meta after use
+    pendingSignupMeta = null
   }
 
   async function signIn(email: string, password: string) {
@@ -79,22 +123,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: {
+          full_name: fullName,
+          role,
+        },
       },
     })
     if (error) return { error: error.message }
+
+    // Store metadata for when the user confirms their email and comes back
+    pendingSignupMeta = { fullName, role }
+
+    // Also try to create profile now (in case auto-confirm is on)
     if (data.user) {
       await supabase.from('profiles').insert({
         id: data.user.id,
         email,
         full_name: fullName,
         role,
+        section: role === 'student' ? 'primary' : null,
       })
     }
+
     return { error: null }
   }
 
   async function signOut() {
     await supabase.auth.signOut()
+    pendingSignupMeta = null
     setState({ user: null, profile: null, loading: false, portalAccess: null })
   }
 
