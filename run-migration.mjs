@@ -4,8 +4,7 @@ import path from 'path';
 
 const { Client } = pg;
 
-// Password with special chars - using object config to avoid URL encoding issues
-const password = 'Olanrewaju123??!!++-&$#@*%®©€';
+const password = 'Aroyanschools234';
 
 async function runBatch(client, batchFile, batchName) {
   console.log(`\n📦 Running ${batchName}...`);
@@ -21,66 +20,18 @@ async function runBatch(client, batchFile, batchName) {
 }
 
 async function main() {
-  // Try direct connection first
-  const configs = [
-    {
-      name: 'Direct connection',
-      host: 'db.mfqxuddjomrobrcyczpf.supabase.co',
-      port: 5432,
-      database: 'postgres',
-      user: 'postgres',
-      password: password,
-      ssl: { rejectUnauthorized: false }
-    },
-    {
-      name: 'Pooler connection (us-east-1)',
-      host: 'aws-0-us-east-1.pooler.supabase.com',
-      port: 6543,
-      database: 'postgres',
-      user: 'postgres.mfqxuddjomrobrcyczpf',
-      password: password,
-      ssl: { rejectUnauthorized: false }
-    },
-    {
-      name: 'Pooler connection (eu-west-1)',
-      host: 'aws-0-eu-west-1.pooler.supabase.com',
-      port: 6543,
-      database: 'postgres',
-      user: 'postgres.mfqxuddjomrobrcyczpf',
-      password: password,
-      ssl: { rejectUnauthorized: false }
-    },
-    {
-      name: 'Pooler connection (ap-southeast-1)',
-      host: 'aws-0-ap-southeast-1.pooler.supabase.com',
-      port: 6543,
-      database: 'postgres',
-      user: 'postgres.mfqxuddjomrobrcyczpf',
-      password: password,
-      ssl: { rejectUnauthorized: false }
-    }
-  ];
+  const client = new Client({
+    host: 'aws-0-eu-west-1.pooler.supabase.com',
+    port: 5432,
+    database: 'postgres',
+    user: 'postgres.mfqxuddjomrobrcyczpf',
+    password: password,
+    ssl: { rejectUnauthorized: false },
+  });
 
-  let client = null;
-  
-  for (const config of configs) {
-    console.log(`🔗 Trying ${config.name}...`);
-    try {
-      const testClient = new Client(config);
-      testClient.connectionTimeoutMillis = 10000;
-      await testClient.connect();
-      console.log(`✅ Connected via ${config.name}!`);
-      client = testClient;
-      break;
-    } catch (err) {
-      console.log(`❌ ${config.name} failed: ${err.message}`);
-    }
-  }
-
-  if (!client) {
-    console.error('\n🚫 Could not connect with any method. Please check your password and try again.');
-    process.exit(1);
-  }
+  console.log('🔗 Connecting to Supabase...');
+  await client.connect();
+  console.log('✅ Connected!');
 
   // Run batches
   const batchesDir = '/home/z/my-project/supabase/migrations/batches';
@@ -109,12 +60,21 @@ async function main() {
     console.log('\n🔍 Verifying tables...');
     const result = await client.query(`
       SELECT table_name FROM information_schema.tables 
-      WHERE table_schema = 'public' 
+      WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
       ORDER BY table_name;
     `);
     console.log('\n📊 Tables created:');
-    result.rows.forEach(row => console.log(`  - ${row.table_name}`));
+    result.rows.forEach(row => console.log(`  ✅ ${row.table_name}`));
     console.log(`\nTotal: ${result.rows.length} tables`);
+
+    // Check seed data
+    const sectionKeys = await client.query('SELECT * FROM section_keys;');
+    console.log('\n🔑 Section Keys:');
+    sectionKeys.rows.forEach(row => console.log(`  ${row.section}: ${row.key_code}`));
+
+    const settings = await client.query('SELECT * FROM school_settings;');
+    console.log('\n🏫 School Settings:');
+    settings.rows.forEach(row => console.log(`  ${row.school_name} | ${row.address}`));
   }
 
   await client.end();
