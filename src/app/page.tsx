@@ -30,8 +30,31 @@ export default function Home() {
     }
   }, [])
 
+  // Get greeting based on time of day
+  function getGreeting() {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Good Morning'
+    if (hour < 17) return 'Good Afternoon'
+    return 'Good Evening'
+  }
+
   return (
     <>
+      {/* ==================== Welcome Greeting Banner ==================== */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1F3D2A 0%, #2D5F3F 60%, #1F3D2A 100%)',
+        color: '#FFFFFF',
+        textAlign: 'center',
+        padding: '10px 20px',
+        fontSize: '14px',
+        fontWeight: 500,
+        letterSpacing: '0.3px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <span style={{ color: '#C9A961', fontWeight: 600 }}>As-salamu Alaykum!</span> {getGreeting()} — Welcome to Aroyan Muslim School ☪
+      </div>
+
       {/* ==================== D1 - Header + Hero ==================== */}
       <div className="D D1">
         <Navbar />
@@ -39,8 +62,8 @@ export default function Home() {
         {/* Hero Section */}
         <section className="hero">
           <img
-            src="/InShot_20260507_212731657.jpg"
-            alt="Aroyan Logo"
+            src="/mosque-logo.jpg"
+            alt="Aroyan Muslim School"
             className="aroyan-logo"
           />
           <h1 className="hero-headline">Aroyan Muslim School</h1>

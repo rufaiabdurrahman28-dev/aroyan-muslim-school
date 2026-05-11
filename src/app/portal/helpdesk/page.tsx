@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
+import QuoteSlider from '@/components/shared/QuoteSlider'
 import type { HelpdeskStatus, Role } from '@/lib/types'
 
 interface Message {
@@ -705,6 +706,7 @@ export default function HelpdeskPortalPage() {
 
       {/* D2 - Main Content */}
       <div className="D D2 D2-auto" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <QuoteSlider />
         <section className="admission-section" style={{ maxWidth: '1100px', width: '100%' }}>
 
           <div className="hd-layout">

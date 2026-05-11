@@ -123,7 +123,7 @@ export default function LoginPage() {
           <div className="auth-card">
             <div className="auth-card-header">
               <img
-                src="/InShot_20260507_212731657.jpg"
+                src="/mosque-logo.jpg"
                 alt="Aroyan Logo"
                 className="auth-logo"
               />

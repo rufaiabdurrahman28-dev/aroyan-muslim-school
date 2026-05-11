@@ -23,8 +23,8 @@ export default function Navbar() {
       <div className="navbar-brand">
         <a href="/">
           <img
-            src="/InShot_20260507_212731657.jpg"
-            alt="Aroyan Logo"
+            src="/mosque-logo.jpg"
+            alt="Aroyan Muslim School"
             className="navbar-logo-brand"
           />
         </a>

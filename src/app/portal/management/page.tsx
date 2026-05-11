@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
+import QuoteSlider from '@/components/shared/QuoteSlider'
 import type { Section, AdmissionStatus, FileStatus, Role } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 
@@ -608,6 +609,7 @@ export default function ManagementPortalPage() {
 
       {/* ==================== D2 - Main Content ==================== */}
       <div className="D D2 D2-auto" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <QuoteSlider />
         <section className="admission-section" style={{ maxWidth: '1100px', width: '100%' }}>
           {/* Section Tabs */}
           <div className="mgmt-section-tabs">
@@ -623,19 +625,20 @@ export default function ManagementPortalPage() {
           </div>
 
           {/* Sub Tabs */}
-          <div className="mgmt-sub-tabs">
+          <div className="mgmt-sub-tabs" style={{ flexWrap: 'wrap' }}>
             {([
               ['admissions', 'Admission Requests'],
               ['files', 'File Review'],
               ['teachers', 'Teachers'],
               ['students', 'Students'],
               ['helpdesk', 'Helpdesk Inbox'],
-              ['create_account', 'Create Staff Account'],
+              ['create_account', '➕ Create Staff Account'],
             ] as [SubTab, string][]).map(([key, label]) => (
               <button
                 key={key}
                 className={`mgmt-sub-tab${activeSubTab === key ? ' mgmt-sub-tab-active' : ''}`}
                 onClick={() => setActiveSubTab(key)}
+                style={key === 'create_account' ? { borderColor: '#C9A961', color: '#C9A961', background: 'rgba(201, 169, 97, 0.06)' } : {}}
               >
                 {label}
               </button>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
+import QuoteSlider from '@/components/shared/QuoteSlider'
 import type { Section, FileStatus } from '@/lib/types'
 
 type Step = 1 | 2 | 3 | 4
@@ -569,6 +570,7 @@ export default function SchoolPortalPage() {
 
       {/* ==================== D2 - Main Content ==================== */}
       <div className="D D2 D2-auto" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <QuoteSlider />
         <section className="admission-section" style={{ maxWidth: '900px', width: '100%' }}>
 
           {/* Step Indicators */}

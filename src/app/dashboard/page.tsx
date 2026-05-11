@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
+import QuoteSlider from '@/components/shared/QuoteSlider'
 
 interface PortalCardData {
   key: string
@@ -316,6 +317,7 @@ export default function DashboardPage() {
 
       {/* ==================== D2 - Dashboard Content ==================== */}
       <div className="D D2 D2-auto" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <QuoteSlider />
         <div className="dashboard-welcome">
           <h2 className="dashboard-welcome-name">
             Welcome back, {profile.full_name}

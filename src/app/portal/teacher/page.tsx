@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
+import QuoteSlider from '@/components/shared/QuoteSlider'
 import { calculateGrade, type Section, type Term, type FileStatus, type SubmissionStatus } from '@/lib/types'
 
 type Tab = 'attendance' | 'assignments' | 'report-cards' | 'file-status'
@@ -941,6 +942,7 @@ export default function TeacherPortalPage() {
 
       {/* D2 - Main Content */}
       <div className="D D2 D2-auto" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <QuoteSlider />
         <section className="admission-section" style={{ maxWidth: '1100px', width: '100%' }}>
 
           {/* Tabs */}
@@ -1287,7 +1289,7 @@ export default function TeacherPortalPage() {
           <div className="tp-modal" onClick={e => e.stopPropagation()}>
             <div className="tp-report-preview-header">
               <img
-                src="/InShot_20260507_212731657.jpg"
+                src="/mosque-logo.jpg"
                 alt="School Logo"
                 className="tp-report-preview-logo"
               />
