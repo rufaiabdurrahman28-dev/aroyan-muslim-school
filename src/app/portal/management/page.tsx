@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
-import type { Section, AdmissionStatus, FileStatus } from '@/lib/types'
+import type { Section, AdmissionStatus, FileStatus, Role } from '@/lib/types'
+import { supabase } from '@/lib/supabase'
 
-type SubTab = 'admissions' | 'files' | 'teachers' | 'students' | 'helpdesk'
+type SubTab = 'admissions' | 'files' | 'teachers' | 'students' | 'helpdesk' | 'create_account'
 
 interface MockAdmission {
   id: string
@@ -200,6 +201,14 @@ export default function ManagementPortalPage() {
   const [admissions, setAdmissions] = useState(MOCK_ADMISSIONS)
   const [files, setFiles] = useState(MOCK_FILES)
   const [helpdesk, setHelpdesk] = useState(MOCK_HELPDESK)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [createName, setCreateName] = useState('')
+  const [createEmail, setCreateEmail] = useState('')
+  const [createPassword, setCreatePassword] = useState('')
+  const [createRole, setCreateRole] = useState<Role>('teacher')
+  const [createSection, setCreateSection] = useState<Section>('primary')
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createMessage, setCreateMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
 
   useEffect(() => {
     if (!loading && !profile) {
@@ -621,6 +630,7 @@ export default function ManagementPortalPage() {
               ['teachers', 'Teachers'],
               ['students', 'Students'],
               ['helpdesk', 'Helpdesk Inbox'],
+              ['create_account', 'Create Staff Account'],
             ] as [SubTab, string][]).map(([key, label]) => (
               <button
                 key={key}
@@ -811,6 +821,166 @@ export default function ManagementPortalPage() {
                 ))}
               </div>
               {sectionStudents.length === 0 && <div className="mgmt-empty">No students found in this section.</div>}
+            </div>
+          )}
+
+          {/* CREATE STAFF ACCOUNT */}
+          {activeSubTab === 'create_account' && (
+            <div style={{ maxWidth: '600px' }}>
+              <div style={{ background: '#FFF', border: '1.5px solid #E8E8E8', borderRadius: '16px', padding: '28px 24px', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#2D5F3F', margin: '0 0 6px' }}>Create Staff Account</h3>
+                <p style={{ fontSize: '14px', color: '#777', margin: '0 0 24px' }}>Create accounts for teachers and management staff. They will receive an email to confirm their account.</p>
+
+                {createMessage && (
+                  <div style={{
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    background: createMessage.type === 'success' ? 'rgba(45, 95, 63, 0.08)' : 'rgba(220, 53, 69, 0.08)',
+                    border: `1px solid ${createMessage.type === 'success' ? 'rgba(45, 95, 63, 0.25)' : 'rgba(220, 53, 69, 0.25)'}`,
+                    color: createMessage.type === 'success' ? '#2D5F3F' : '#dc3545',
+                  }}>
+                    {createMessage.text}
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label className="form-label">Full Name</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. Ustaz Ahmad Ibrahim"
+                    value={createName}
+                    onChange={(e) => setCreateName(e.target.value)}
+                    disabled={createLoading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Email Address</label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder="e.g. ahmad@aroyan.edu"
+                    value={createEmail}
+                    onChange={(e) => setCreateEmail(e.target.value)}
+                    disabled={createLoading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Temporary Password</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Set a temporary password (min 6 chars)"
+                    value={createPassword}
+                    onChange={(e) => setCreatePassword(e.target.value)}
+                    disabled={createLoading}
+                  />
+                  <p style={{ fontSize: '12px', color: '#999', margin: '4px 0 0' }}>The staff member can change this after first login.</p>
+                </div>
+
+                <div className="form-row-2col">
+                  <div className="form-group">
+                    <label className="form-label">Role</label>
+                    <select
+                      className="form-input form-select"
+                      value={createRole}
+                      onChange={(e) => setCreateRole(e.target.value as Role)}
+                      disabled={createLoading}
+                    >
+                      <option value="teacher">Teacher</option>
+                      <option value="manager">Management</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Section</label>
+                    <select
+                      className="form-input form-select"
+                      value={createSection}
+                      onChange={(e) => setCreateSection(e.target.value as Section)}
+                      disabled={createLoading}
+                    >
+                      <option value="nursery">Nursery</option>
+                      <option value="primary">Primary</option>
+                      <option value="jss">JSS</option>
+                      <option value="sss">SSS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  className="form-submit-btn"
+                  style={{ width: '100%', marginTop: '8px' }}
+                  disabled={createLoading || !createName || !createEmail || !createPassword}
+                  onClick={async () => {
+                    setCreateLoading(true)
+                    setCreateMessage(null)
+
+                    try {
+                      // Create auth user via admin API (using service role would be ideal, but we'll use signUp)
+                      const { data, error } = await supabase.auth.signUp({
+                        email: createEmail,
+                        password: createPassword,
+                        options: {
+                          emailRedirectTo: `${window.location.origin}/dashboard`,
+                          data: {
+                            full_name: createName,
+                            role: createRole,
+                          },
+                        },
+                      })
+
+                      if (error) {
+                        setCreateMessage({ type: 'error', text: error.message })
+                        setCreateLoading(false)
+                        return
+                      }
+
+                      if (data.user) {
+                        // Create profile with the correct role and section
+                        const { error: profileError } = await supabase.from('profiles').insert({
+                          id: data.user.id,
+                          email: createEmail,
+                          full_name: createName,
+                          role: createRole,
+                          section: createSection,
+                        })
+
+                        if (profileError) {
+                          // Profile might already exist (trigger created it)
+                          // Update it instead
+                          await supabase.from('profiles').update({
+                            full_name: createName,
+                            role: createRole,
+                            section: createSection,
+                          }).eq('id', data.user.id)
+                        }
+
+                        setCreateMessage({ type: 'success', text: `Account created for ${createName}! They will receive a confirmation email.` })
+                        setCreateName('')
+                        setCreateEmail('')
+                        setCreatePassword('')
+                      }
+                    } catch (err) {
+                      setCreateMessage({ type: 'error', text: 'An unexpected error occurred. Please try again.' })
+                    }
+
+                    setCreateLoading(false)
+                  }}
+                >
+                  {createLoading ? 'Creating Account...' : 'Create Staff Account'}
+                </button>
+              </div>
+
+              <div style={{ background: 'rgba(201, 169, 97, 0.06)', border: '1px solid rgba(201, 169, 97, 0.2)', borderRadius: '12px', padding: '16px 20px' }}>
+                <p style={{ fontSize: '13px', color: '#777', margin: 0, lineHeight: 1.6 }}>
+                  <strong style={{ color: '#C9A961' }}>Note:</strong> Only management (admin) can create staff accounts. Teachers and management accounts cannot be created through the public signup page. The staff member will receive an email to confirm their account before they can log in.
+                </p>
+              </div>
             </div>
           )}
 
