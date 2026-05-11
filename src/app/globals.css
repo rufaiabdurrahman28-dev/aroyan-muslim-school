@@ -188,19 +188,18 @@ html, body {
 }
 
 .navbar-logo-brand {
-  width: 58px;
-  height: 58px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
-  border-radius: 50%;
-  box-shadow: 0 4px 16px rgba(45, 95, 63, 0.45);
-  border: 3px solid #2D5F3F;
-  filter: contrast(1.15) brightness(1.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  filter: contrast(1.08) brightness(1.02);
+  transition: transform 0.3s ease;
 }
 
 .navbar-logo-brand:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 22px rgba(45, 95, 63, 0.6);
+  transform: scale(1.08);
 }
 
 .navbar-links {
@@ -287,13 +286,13 @@ html, body {
 }
 
 .aroyan-logo {
-  max-width: 140px;
+  max-width: 160px;
   height: auto;
   margin-bottom: 16px;
-  border-radius: 50%;
-  box-shadow: 0 6px 24px rgba(45, 95, 63, 0.5);
-  border: 4px solid #2D5F3F;
-  filter: contrast(1.15) brightness(1.05);
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  filter: contrast(1.08) brightness(1.02);
 }
 
 .hero-headline {
@@ -852,13 +851,13 @@ html, body {
 }
 
 .auth-logo {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: auto;
   object-fit: contain;
-  border-radius: 50%;
+  border-radius: 0;
   margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(45, 95, 63, 0.3);
-  border: 2px solid #2D5F3F;
+  box-shadow: none;
+  border: none;
 }
 
 .auth-title {
@@ -1684,9 +1683,8 @@ html, body {
   }
 
   .navbar-logo-brand {
-    width: 44px;
-    height: 44px;
-    border-width: 2.5px;
+    width: 52px;
+    height: 52px;
   }
 
   .mobile-menu-btn {
@@ -1718,8 +1716,7 @@ html, body {
   }
 
   .aroyan-logo {
-    max-width: 100px;
-    border-width: 3px;
+    max-width: 120px;
   }
 
   .hero-headline {

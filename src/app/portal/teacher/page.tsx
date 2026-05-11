@@ -779,11 +779,11 @@ export default function TeacherPortalPage() {
           border-bottom: 2px solid #2D5F3F;
         }
         .tp-report-preview-logo {
-          width: 64px;
-          height: 64px;
+          width: 80px;
+          height: 80px;
           object-fit: contain;
-          border-radius: 50%;
-          border: 2px solid #2D5F3F;
+          border-radius: 0;
+          border: none;
           margin-bottom: 8px;
         }
         .tp-report-preview-school {

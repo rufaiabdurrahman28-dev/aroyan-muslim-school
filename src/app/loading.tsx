@@ -18,12 +18,12 @@ export default function Loading() {
         src="/mosque-logo.jpg"
         alt="Aroyan Logo"
         style={{
-          width: 72,
-          height: 72,
-          borderRadius: '50%',
-          border: '3px solid #2D5F3F',
-          boxShadow: '0 4px 16px rgba(45, 95, 63, 0.4)',
-          objectFit: 'cover',
+          width: 80,
+          height: 80,
+          borderRadius: 0,
+          border: 'none',
+          boxShadow: 'none',
+          objectFit: 'contain',
           marginBottom: 16,
           animation: 'logoPulse 1.5s ease-in-out infinite',
         }}
