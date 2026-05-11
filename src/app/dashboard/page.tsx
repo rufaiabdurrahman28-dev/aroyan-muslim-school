@@ -82,13 +82,13 @@ const portalCards: PortalCardData[] = [
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { profile, portalAccess, loading, signOut } = useAuth()
+  const { profile, portalAccess, loading, signOut, user } = useAuth()
 
   useEffect(() => {
-    if (!loading && !profile) {
+    if (!loading && !profile && !user) {
       router.push('/login')
     }
-  }, [loading, profile, router])
+  }, [loading, profile, user, router])
 
   function handleCardClick(card: PortalCardData) {
     if (!portalAccess || !portalAccess[card.key as keyof typeof portalAccess]) {
@@ -122,8 +122,28 @@ export default function DashboardPage() {
     )
   }
 
-  if (!profile) {
+  if (!profile && !user) {
     return null
+  }
+
+  // If user is logged in but profile isn't loaded yet, wait a bit
+  if (!profile && user) {
+    return (
+      <>
+        <div className="D D1 D1-short">
+          <Navbar />
+          <section className="page-hero">
+            <h1 className="page-hero-title">Dashboard</h1>
+          </section>
+        </div>
+        <div className="D D2 D2-auto D2-center">
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p style={{ color: '#777', fontSize: '16px' }}>Setting up your profile...</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    )
   }
 
   const roleLabel = profile.role.charAt(0).toUpperCase() + profile.role.slice(1)

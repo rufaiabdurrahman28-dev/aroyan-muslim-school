@@ -19,9 +19,6 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-// Store signup metadata temporarily so we can create profile after email confirmation
-let pendingSignupMeta: { fullName: string; role: Role } | null = null
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -40,16 +37,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     })
 
-    // Listen for auth changes (this fires after email confirmation too!)
+    // Listen for auth changes (fires after email confirmation too!)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event)
 
-      if (event === 'SIGNED_IN' && session?.user) {
-        await ensureProfile(session.user)
-      } else if (event === 'SIGNED_OUT') {
-        pendingSignupMeta = null
-        setState({ user: null, profile: null, loading: false, portalAccess: null })
-      } else if (session?.user) {
+      if (session?.user) {
         await ensureProfile(session.user)
       } else {
         setState({ user: null, profile: null, loading: false, portalAccess: null })
@@ -60,56 +52,86 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function ensureProfile(user: any) {
-    // Check if profile exists
-    const { data: existingProfile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+    try {
+      // Check if profile exists
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
 
-    if (existingProfile) {
-      // Profile exists, just load it
+      if (existingProfile) {
+        // Profile exists, load it
+        const { ROLE_ACCESS } = await import('./types')
+        const role: Role = existingProfile.role || 'student'
+        setState({
+          user,
+          profile: existingProfile,
+          loading: false,
+          portalAccess: ROLE_ACCESS[role],
+        })
+        return
+      }
+
+      // Profile doesn't exist — create it
+      // Use user metadata from Supabase Auth (stored during signup)
+      const userMeta = user.user_metadata || {}
+      const fullName = userMeta.full_name || userMeta.name || user.email?.split('@')[0] || 'User'
+      const role: Role = userMeta.role || 'student'
+
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email,
+          full_name: fullName,
+          role,
+          section: role === 'student' ? 'primary' : null,
+        })
+        .select()
+        .single()
+
+      if (insertError) {
+        console.error('Profile insert error:', insertError)
+        // If insert fails (maybe trigger already created it), try fetching again
+        const { data: retryProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (retryProfile) {
+          const { ROLE_ACCESS } = await import('./types')
+          const finalRole: Role = retryProfile.role || 'student'
+          setState({
+            user,
+            profile: retryProfile,
+            loading: false,
+            portalAccess: ROLE_ACCESS[finalRole],
+          })
+          return
+        }
+      }
+
       const { ROLE_ACCESS } = await import('./types')
-      const role: Role = existingProfile.role || 'student'
+      const finalRole: Role = newProfile?.role || role
+
       setState({
         user,
-        profile: existingProfile,
+        profile: newProfile || { id: user.id, email: user.email, full_name: fullName, role, section: null },
         loading: false,
-        portalAccess: ROLE_ACCESS[role],
+        portalAccess: ROLE_ACCESS[finalRole],
       })
-      return
+    } catch (err) {
+      console.error('ensureProfile error:', err)
+      // Even if profile fetch fails, set the user so the dashboard can show
+      setState({
+        user,
+        profile: null,
+        loading: false,
+        portalAccess: null,
+      })
     }
-
-    // Profile doesn't exist — create it
-    // Use pending signup metadata if available, otherwise use user metadata from Supabase Auth
-    const userMeta = user.user_metadata || {}
-    const fullName = pendingSignupMeta?.fullName || userMeta.full_name || userMeta.name || user.email?.split('@')[0] || 'User'
-    const role: Role = pendingSignupMeta?.role || userMeta.role || 'student'
-
-    const { data: newProfile } = await supabase
-      .from('profiles')
-      .insert({
-        id: user.id,
-        email: user.email,
-        full_name: fullName,
-        role,
-        section: role === 'student' ? 'primary' : null,
-      })
-      .select()
-      .single()
-
-    const { ROLE_ACCESS } = await import('./types')
-    const finalRole: Role = newProfile?.role || role
-
-    setState({
-      user,
-      profile: newProfile || { id: user.id, email: user.email, full_name: fullName, role, section: null },
-      loading: false,
-      portalAccess: ROLE_ACCESS[finalRole],
-    })
-
-    // Clear pending meta after use
-    pendingSignupMeta = null
   }
 
   async function signIn(email: string, password: string) {
@@ -131,18 +153,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     if (error) return { error: error.message }
 
-    // Store metadata for when the user confirms their email and comes back
-    pendingSignupMeta = { fullName, role }
-
-    // Also try to create profile now (in case auto-confirm is on)
+    // The database trigger will create the profile automatically
+    // But also try creating it here as a fallback
     if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        full_name: fullName,
-        role,
-        section: role === 'student' ? 'primary' : null,
-      })
+      try {
+        await supabase.from('profiles').insert({
+          id: data.user.id,
+          email,
+          full_name: fullName,
+          role,
+          section: role === 'student' ? 'primary' : null,
+        })
+      } catch {
+        // Ignore - trigger may have already created it
+      }
     }
 
     return { error: null }
@@ -150,7 +174,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signOut() {
     await supabase.auth.signOut()
-    pendingSignupMeta = null
     setState({ user: null, profile: null, loading: false, portalAccess: null })
   }
 
